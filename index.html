@@ -190,6 +190,12 @@
         color: #ddd;
         font-weight: 300;
       }
+      .menu-toggle {
+        display: none;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 1001;
+      }
 
       .grid-container {
         display: grid;
@@ -220,43 +226,10 @@
         text-align: center;
       }
 
-      .watermark {
-        position: absolute;
-        top: 50%;
-        left: 20%;
-        transform: translateY(-50%);
-        width: 80%;
-        height: 100%;
-        background-repeat: no-repeat;
-        background-size: contain;
-        opacity: 0.15;
-        z-index: 1;
-        pointer-events: none;
-      }
-
-      #people .watermark {
-        background-image: url("https://pngimg.com/uploads/running_shoes/running_shoes_PNG5816.png"); /* Sepatu Merah */
-        background-position: center;
-      }
-
-      #process .watermark {
-        background-image: url("https://pngimg.com/uploads/running_shoes/running_shoes_PNG5823.png"); /* Sepatu Abu/Putih besar */
-        background-position: center right;
-        opacity: 0.1;
-      }
-
       #process .grid-container .grid-item:last-child {
         grid-column: 1 / -1;
         width: 50%;
         margin: 0 auto;
-      }
-
-      #product .watermark {
-        background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/New_Balance_logo.svg/2560px-New_Balance_logo.svg.png");
-        background-position: center;
-        background-size: 80%;
-        opacity: 0.05;
-        filter: grayscale(100%);
       }
 
       #product .section-heading {
@@ -317,29 +290,80 @@
         opacity: 0.8;
         text-transform: uppercase;
       }
-      /* Container utama untuk slider */
+      /* Container slider */
       .grid-item .image-slider {
         width: 100%;
-        height: 160px;
-        overflow: hidden; /* Sembunyikan gambar yang di luar box */
-        border-radius: 4px;
+        height: 180px; /* Sedikit lebih tinggi agar lebih proporsional */
+        overflow: hidden;
+        border-radius: 8px; /* Sudut lebih lembut */
         position: relative;
+        background: #111;
       }
 
-      /* Wrapper yang menampung deretan gambar */
+      /* Wrapper diset menjadi relatif untuk menumpuk gambar */
       .slider-wrapper {
-        display: flex;
-        width: 300%; /* Jika ada 3 gambar, lebarnya 300% */
+        position: relative;
+        width: 100%;
         height: 100%;
-        animation: slideAnimation 12s infinite ease-in-out;
       }
 
-      /* Ukuran setiap gambar di dalam slider */
+      /* Gambar ditumpuk satu sama lain (Absolute Positioning) */
       .slider-wrapper img {
-        width: 33.333%; /* Harus pas 1/3 jika ada 3 gambar */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
         height: 100%;
         object-fit: cover;
-        filter: brightness(0.9);
+        opacity: 0; /* Mulai dengan transparan */
+        filter: brightness(0.8);
+        transition: none;
+        /* Animasi Cross-fade + Ken Burns */
+        animation: kenBurnsFade 12s infinite ease-in-out;
+      }
+
+      /* Delay agar gambar muncul bergantian */
+      .slider-wrapper img:nth-child(1) {
+        animation-delay: 0s;
+      }
+      .slider-wrapper img:nth-child(2) {
+        animation-delay: 4s;
+      }
+      .slider-wrapper img:nth-child(3) {
+        animation-delay: 8s;
+      }
+
+      /* Keyframes: Gabungan Transparansi dan Zoom */
+      @keyframes kenBurnsFade {
+        0% {
+          opacity: 0;
+          transform: scale(1);
+        }
+        10% {
+          opacity: 1;
+        }
+        33% {
+          opacity: 1;
+        }
+        43% {
+          opacity: 0;
+          transform: scale(1.15); /* Efek zoom masuk */
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      /* Caption lebih modern */
+      .caption {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-left: 3px solid #9568ff; /* Aksen warna ungu */
+        padding-left: 10px;
       }
 
       /* Keyframe untuk transisi halus */
@@ -366,31 +390,127 @@
       .grid-item:nth-child(even) .slider-wrapper {
         animation-delay: 2s;
       }
+
+      /* Tambahan: Pastikan Canvas Three.js tidak menutupi klik (pointer events) */
+      #three-container {
+        pointer-events: none;
+      }
+      /* Perbaikan Header untuk Mobile */
       @media (max-width: 768px) {
-        .section {
-          flex-direction: column;
-          padding: 40px 20px;
+        header {
+          height: 300px; /* Lebih pendek di mobile */
+          background-position: center center;
         }
+
+        .hero-title {
+          font-size: 1.4rem !important; /* Ukuran teks judul lebih kecil */
+          padding: 0 20px;
+        }
+
+        /* Icon Bar menjadi Scrollable secara Horizontal */
+        .icon-bar {
+          gap: 20px !important;
+          padding: 15px 10px !important;
+          overflow-x: auto; /* Bisa di-swipe kiri-kanan */
+          justify-content: flex-start !important;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .icon-item {
+          flex: 0 0 auto; /* Mencegah icon menyusut */
+          flex-direction: column !important; /* Icon di atas teks */
+          gap: 5px !important;
+        }
+
+        .icon-item i {
+          font-size: 30px !important;
+        }
+
+        .icon-item span,
+        .icon-item a {
+          font-size: 12px !important;
+        }
+
+        /* Section Layout */
+        .section {
+          flex-direction: column !important; /* Stack ke bawah */
+          padding: 40px 5% !important;
+        }
+
         .text-col {
-          width: 100%;
-          padding-right: 0;
+          width: 100% !important;
+          padding-right: 0 !important;
+          text-align: center; /* Teks tengah di mobile */
           margin-bottom: 30px;
         }
+
+        .section-heading {
+          font-size: 2rem !important;
+          margin-bottom: 15px;
+        }
+
         .gallery-col {
-          width: 100%;
+          width: 100% !important;
         }
-        .icon-bar {
-          gap: 30px;
-          font-size: 10px;
+
+        /* Grid Container menjadi 1 Kolom */
+        .grid-container {
+          grid-template-columns: 1fr !important;
+          gap: 30px !important;
         }
-        .hero-title {
-          font-size: 1.8rem;
+
+        /* Khusus section Process yang tadinya ada kolom lebar */
+        #process .grid-container .grid-item:last-child {
+          width: 100% !important;
         }
-        .navbar {
-          padding: 15px 20px;
+
+        /* Footer Links */
+        .footer-links {
+          gap: 30px !important;
+          margin-top: 30px !important;
         }
+
+        .footer-links div img {
+          width: 100% !important; /* Gambar video summit full width */
+          height: auto !important;
+        }
+        .menu-toggle {
+          display: block; /* Muncul hanya di mobile */
+        }
+
         .nav-menu {
-          display: none;
+          position: fixed;
+          top: 0;
+          right: -100%; /* Sembunyi di luar layar kanan */
+          width: 70%;
+          height: 100vh;
+          background-color: rgba(0, 0, 0, 0.95);
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 30px;
+          transition: 0.4s ease;
+          z-index: 1000;
+          border-left: 1px solid #9568ff;
+        }
+
+        /* Class saat menu aktif */
+        .nav-menu.active {
+          right: 0;
+        }
+
+        .nav-menu a {
+          font-size: 1.2rem;
+        }
+
+        /* Overlay saat menu buka (opsional) */
+        .nav-menu.active::before {
+          content: "";
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 30%;
+          height: 100vh;
         }
       }
     </style>
@@ -403,7 +523,10 @@
             <img src="nb.webp" height="40px" /> Quality PWI 5
           </div>
         </a>
-        <div class="nav-menu">
+        <div class="menu-toggle" id="mobile-menu">
+          <i class="fas fa-bars"></i>
+        </div>
+        <div class="nav-menu" id="nav-list">
           <a href="#">Home</a>
           <a href="#">Dashboard</a>
           <a href="#">Structure</a>
@@ -418,30 +541,22 @@
     </header>
 
     <div class="icon-bar">
-      <div class="icon-item">
-        <a href="#people">
-          <i class="fas fa-users"></i>
-        </a>
-        <span><a href="#people">PEOPLE</a></span>
-      </div>
-      <div class="icon-item">
-        <a href="#process">
-          <i class="fas fa-sync-alt"></i>
-        </a>
-        <span><a href="#process">PROCESS</a></span>
-      </div>
-      <div class="icon-item">
-        <a href="#product">
-          <i class="fas fa-boxes"></i>
-        </a>
-        <span><a href="#product">PRODUCT</a></span>
-      </div>
-      <div class="icon-item">
-        <a href="#footer">
-          <i class="fas fa-project-diagram"></i>
-        </a>
-        <span><a href="#footer">PROJECT</a></span>
-      </div>
+      <a href="#people" class="icon-item">
+        <i class="fas fa-users"></i>
+        <span>PEOPLE</span>
+      </a>
+      <a href="#process" class="icon-item">
+        <i class="fas fa-sync-alt"></i>
+        <span>PROCESS</span>
+      </a>
+      <a href="#product" class="icon-item">
+        <i class="fas fa-boxes"></i>
+        <span>PRODUCT</span>
+      </a>
+      <a href="#footer" class="icon-item">
+        <i class="fas fa-project-diagram"></i>
+        <span>PROJECT</span>
+      </a>
     </div>
     <p
       style="
@@ -456,8 +571,18 @@
     </p>
 
     <section id="people" class="section">
-      <div class="watermark"></div>
-
+      <div
+        id="three-container"
+        style="
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+          opacity: 0.5;
+        "
+      ></div>
       <div class="text-col">
         <h2 class="section-heading">PEOPLE</h2>
         <p class="section-desc">
@@ -474,54 +599,119 @@
             <div class="image-slider">
               <div class="slider-wrapper">
                 <img
-                  src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?w=500"
+                  src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?w=600"
                   alt="Summit 1"
                 />
                 <img
-                  src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=500"
+                  src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600"
                   alt="Summit 2"
                 />
                 <img
-                  src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=500"
+                  src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600"
                   alt="Summit 3"
                 />
               </div>
             </div>
             <div class="caption">Parkland Quality Summit</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=500"
-              alt="Capability"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600"
+                  alt="Cap 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=600"
+                  alt="Cap 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600"
+                  alt="Cap 3"
+                />
+              </div>
+            </div>
             <div class="caption">Improve Capability</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=500"
-              alt="Certification"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600"
+                  alt="Cert 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=600"
+                  alt="Cert 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600"
+                  alt="Cert 3"
+                />
+              </div>
+            </div>
             <div class="caption">Certification Program</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=500"
-              alt="Problem Solving"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600"
+                  alt="PS 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600"
+                  alt="PS 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600"
+                  alt="PS 3"
+                />
+              </div>
+            </div>
             <div class="caption">Problem Solving Enhancement</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=500"
-              alt="QCC"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=600"
+                  alt="QCC 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600"
+                  alt="QCC 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600"
+                  alt="QCC 3"
+                />
+              </div>
+            </div>
             <div class="caption">QCC / OJT</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500"
-              alt="OJT"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600"
+                  alt="OJT 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600"
+                  alt="OJT 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600"
+                  alt="OJT 3"
+                />
+              </div>
+            </div>
             <div class="caption">OJT (On Job Training)</div>
           </div>
         </div>
@@ -529,8 +719,6 @@
     </section>
 
     <section id="process" class="section">
-      <div class="watermark"></div>
-
       <div class="text-col">
         <h2 class="section-heading">PROCESS</h2>
         <p class="section-desc">
@@ -544,38 +732,102 @@
       <div class="gallery-col">
         <div class="grid-container">
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=500"
-              alt="Line Balancing"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600"
+                  alt="Line 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600"
+                  alt="Line 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600"
+                  alt="Line 3"
+                />
+              </div>
+            </div>
             <div class="caption">Process Line Balancing</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=500"
-              alt="Control Plan"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600"
+                  alt="Control 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1454165205744-3b78555e5572?w=600"
+                  alt="Control 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600"
+                  alt="Control 3"
+                />
+              </div>
+            </div>
             <div class="caption">Control Plan Key Assemblies</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500"
-              alt="Mixing"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600"
+                  alt="Mix 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1516939884455-1445c8652f83?w=600"
+                  alt="Mix 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600"
+                  alt="Mix 3"
+                />
+              </div>
+            </div>
             <div class="caption">Process Mixing & Cutting</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=500"
-              alt="In-Line"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600"
+                  alt="Inline 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600"
+                  alt="Inline 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600"
+                  alt="Inline 3"
+                />
+              </div>
+            </div>
             <div class="caption">In-Line Production</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?w=500"
-              alt="Doc Control"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?w=600"
+                  alt="Doc 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600"
+                  alt="Doc 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=600"
+                  alt="Doc 3"
+                />
+              </div>
+            </div>
             <div class="caption">Document Control</div>
           </div>
         </div>
@@ -583,8 +835,6 @@
     </section>
 
     <section id="product" class="section">
-      <div class="watermark"></div>
-
       <div class="text-col">
         <h2 class="section-heading">PRODUCT</h2>
         <p class="section-desc">
@@ -596,31 +846,82 @@
       <div class="gallery-col">
         <div class="grid-container">
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=500"
-              alt="Sequence"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600"
+                  alt="Sequence 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600"
+                  alt="Sequence 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600"
+                  alt="Sequence 3"
+                />
+              </div>
+            </div>
             <div class="caption">Sequence Check (1-3)</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=500"
-              alt="Inspection"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600"
+                  alt="Inspection 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600"
+                  alt="Inspection 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1635048424329-a9bfb146d7aa?w=600"
+                  alt="Inspection 3"
+                />
+              </div>
+            </div>
             <div class="caption">Incoming Inspection</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500"
-              alt="Review"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600"
+                  alt="Review 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600"
+                  alt="Review 2"
+                />
+                <img
+                  src="images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600"
+                  alt="Review 3"
+                />
+              </div>
+            </div>
             <div class="caption">Final & Quality Review</div>
           </div>
+
           <div class="grid-item">
-            <img
-              src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=500"
-              alt="Xray"
-            />
+            <div class="image-slider">
+              <div class="slider-wrapper">
+                <img
+                  src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=600"
+                  alt="Xray 1"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1530490125459-847a6d437825?w=600"
+                  alt="Xray 2"
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600"
+                  alt="Xray 3"
+                />
+              </div>
+            </div>
             <div class="caption">X-Ray / Metal Inspection</div>
           </div>
         </div>
@@ -658,6 +959,97 @@
 
       <div class="copyright">quality digital PWI5</div>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <script>
+      let scene, camera, renderer, shoe;
+
+      function initThree() {
+        const container = document.getElementById("three-container");
+        scene = new THREE.Scene();
+
+        // Sesuaikan Field of View untuk layar kecil
+        const fov = window.innerWidth < 768 ? 60 : 45;
+        camera = new THREE.PerspectiveCamera(
+          fov,
+          container.offsetWidth / container.offsetHeight,
+          0.1,
+          1000
+        );
+        camera.position.z = 5;
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio untuk performa mobile
+        container.appendChild(renderer.domElement);
+
+        // Light
+        scene.add(new THREE.AmbientLight(0xffffff, 1));
+        const spot = new THREE.DirectionalLight(0xffffff, 2);
+        spot.position.set(5, 5, 5);
+        scene.add(spot);
+
+        // Geometri Sepatu Abstrak (Placeholder)
+        const shoeGroup = new THREE.Group();
+        const mat = new THREE.MeshPhongMaterial({
+          color: 0x9568ff,
+          wireframe: true,
+        });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(2, 0.5, 0.8), mat);
+        shoeGroup.add(body);
+
+        shoe = shoeGroup;
+        scene.add(shoe);
+
+        animate();
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        if (shoe) {
+          shoe.rotation.y += 0.01;
+          shoe.rotation.z = Math.sin(Date.now() * 0.001) * 0.1;
+        }
+        renderer.render(scene, camera);
+      }
+
+      // Penting: Update ukuran saat layar berputar/resize
+      window.addEventListener("resize", () => {
+        const container = document.getElementById("three-container");
+        camera.aspect = container.offsetWidth / container.offsetHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+      });
+
+      initThree();
+    </script>
+    <script>
+      const menuToggle = document.getElementById("mobile-menu");
+      const navList = document.getElementById("nav-list");
+
+      // Fungsi buka/tutup menu
+      menuToggle.addEventListener("click", () => {
+        navList.classList.toggle("active");
+
+        // Animasi ganti icon (dari bars ke times/X)
+        const icon = menuToggle.querySelector("i");
+        if (navList.classList.contains("active")) {
+          icon.classList.remove("fa-bars");
+          icon.classList.add("fa-times");
+        } else {
+          icon.classList.remove("fa-times");
+          icon.classList.add("fa-bars");
+        }
+      });
+
+      // Tutup menu saat salah satu link diklik (opsional)
+      document.querySelectorAll(".nav-menu a").forEach((link) => {
+        link.addEventListener("click", () => {
+          navList.classList.remove("active");
+          menuToggle
+            .querySelector("i")
+            .classList.replace("fa-times", "fa-bars");
+        });
+      });
+    </script>
   </body>
 </html>
-
