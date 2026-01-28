@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schedule Audit - Quality PWI 5</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;500&family=Lora:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #f8fafc;
+        color: #333;
+      }
+
+      /* --- Navbar Styling (Konsisten) --- */
+      header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: transparent;
+        font-family: "Lora", serif;
+        z-index: 1000;
+        transition: background-color 0.4s ease;
+      }
+      header.scrolled {
+        background-color: #000 !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 50px;
+        color: #fff;
+      }
+      .navbar .brand {
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-menu {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+      }
+      .nav-menu a {
+        color: #fff;
+        text-decoration: none;
+        opacity: 0.8;
+        transition: 0.3s;
+      }
+      .nav-menu a:hover {
+        opacity: 1;
+        color: #9568ff;
+      }
+
+      /* --- Dropdown Styling --- */
+      .dropdown {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 100%;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%; /* Muncul tepat di bawah navbar */
+        left: 50%;
+        transform: translateX(
+          -50%
+        ); /* Posisi tengah (center) relative terhadap menu induk */
+        background-color: rgba(0, 0, 0, 0.95); /* Hitam sedikit transparan */
+        min-width: 450px; /* Lebar diperbesar untuk 2 kolom */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 2000;
+        border-top: 3px solid #9568ff; /* Aksen ungu di atas dropdown */
+        border-radius: 0 0 8px 8px;
+        padding: 15px;
+
+        /* Grid Layout untuk 2 Kolom */
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      /* Tampilkan dropdown saat di-hover */
+      .dropdown:hover .dropdown-content {
+        display: grid;
+        animation: fadeIn 0.3s ease;
+      }
+
+      /* Style link di dalam dropdown */
+      .dropdown-content a {
+        color: #fff !important;
+        padding: 8px 12px;
+        text-decoration: none;
+        display: block;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        white-space: nowrap; /* Mencegah teks turun ke baris baru */
+      }
+
+      .dropdown-content a:hover {
+        background-color: #2b6f86; /* Biru New Balance saat hover item */
+        color: #fff;
+        padding-left: 18px; /* Efek geser sedikit saat hover */
+      }
+
+      /* Animasi Fade In */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      /* --- Hero Section Kecil --- */
+      .hero-mini {
+        background-image: url("visit.png");
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .hero-mini h1 {
+        font-family: "Playfair Display", serif;
+        color: #fff;
+        font-size: 95px;
+      }
+
+      /* --- Calendar Container --- */
+      .calendar-container {
+        max-width: 1100px;
+        margin: -50px auto 50px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
+      }
+
+      /* Kustomisasi FullCalendar agar Modern */
+      .fc .fc-button-primary {
+        background-color: #2b6f86;
+        border-color: #2b6f86;
+      }
+      .fc .fc-button-primary:hover {
+        background-color: #1e4f61;
+      }
+      .fc-theme-standard td,
+      .fc-theme-standard th {
+        border-color: #f1f5f9;
+      }
+      .fc .fc-toolbar-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        color: #2b6f86;
+      }
+
+      /* --- Modal Styling --- */
+      #visitModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-content {
+        background: #fff;
+        width: 90%;
+        max-width: 500px;
+        padding: 30px;
+        border-radius: 12px;
+      }
+
+      footer {
+        background-color: #2b6f86;
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+        font-size: 11px;
+        letter-spacing: 2px;
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 15px 20px;
+        }
+        .nav-menu {
+          display: none;
+        } /* Untuk simplifikasi, buat hamburger menu jika perlu */
+        .calendar-container {
+          margin: -30px 15px 30px;
+          padding: 15px;
+        }
+        .hero-mini h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header id="mainHeader">
+      <nav class="navbar">
+        <a href="tes.html">
+          <div class="brand">
+            <img
+              src="nb.webp"
+              height="35px"
+              width="60px"
+              onerror="
+                this.src =
+                  'https://upload.wikimedia.org/wikipedia/commons/e/ea/New_Balance_logo.svg'
+              "
+            />
+            <span>Quality PWI 5</span>
+          </div>
+        </a>
+        <div class="nav-menu">
+          <a href="tes.html">Home</a>
+          <div class="dropdown">
+            <a href="#" class="flex items-center gap-1 cursor-pointer">
+              Dashboard
+              <i class="fas fa-chevron-down" style="font-size: 0.7rem"></i>
+            </a>
+            <div class="dropdown-content">
+              <a href="#">In-Station Quality</a>
+              <a href="#">SCORECARD</a>
+              <a href="#">DPPM</a>
+              <a href="#">BTSSI</a>
+              <a href="#">TOP 3 Defect</a>
+              <a href="#">NBJ/WH/NBC Inspection</a>
+              <a href="#">Bonding Report</a>
+
+              <a href="#">MQA Audit</a>
+              <a href="#">SI Online</a>
+              <a href="#">SI Report</a>
+              <a href="#">Incoming Material</a>
+              <a href="#">Stopline</a>
+              <a href="#">G R&R</a>
+              <a href="#">Supplier Performance</a>
+            </div>
+          </div>
+          <a href="struktur_organisasi.html">Structure</a>
+          <a
+            href="schedule_audit.html"
+            style="color: #9568ff; font-weight: bold"
+            >Schedule Audit</a
+          >
+        </div>
+      </nav>
+    </header>
+
+    <div class="hero-mini">
+      <h1>NB Visit</h1>
+    </div>
+
+    <div class="calendar-container">
+      <div class="flex justify-between items-center mb-6">
+        <p class="text-gray-500 italic">
+          Klik pada tanggal untuk menambah jadwal kunjungan baru.
+        </p>
+        <button
+          onclick="openModal()"
+          class="bg-[#9568ff] text-white px-5 py-2 rounded-full hover:bg-purple-700 transition shadow-lg"
+        >
+          <i class="fas fa-plus mr-2"></i> Add Visit
+        </button>
+      </div>
+      <div id="calendar"></div>
+    </div>
+
+    <div id="visitModal">
+      <div class="modal-content animate__animated animate__fadeInDown">
+        <h2 class="text-2xl font-bold mb-6 text-[#2b6f86] font-serif">
+          Add New Visit
+        </h2>
+        <form id="visitForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Tanggal & Waktu</label
+            >
+            <input
+              type="datetime-local"
+              id="visitDate"
+              class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500 outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Kunjungan Dari (Instansi/Dept)</label
+            >
+            <input
+              type="text"
+              id="visitFrom"
+              placeholder="Contoh: Global Quality Team"
+              class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500 outline-none"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Area Yang Dikunjungi</label
+            >
+            <select
+              id="visitArea"
+              class="w-full mt-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500 outline-none"
+            >
+              <option>Production Line 1-10</option>
+              <option>Warehouse Material</option>
+              <option>Laboratory / Testing</option>
+              <option>Cutting & Mixing Area</option>
+            </select>
+          </div>
+          <div class="flex justify-end gap-3 mt-8">
+            <button
+              type="button"
+              onclick="closeModal()"
+              class="px-4 py-2 text-gray-500 hover:text-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-[#2b6f86] text-white px-6 py-2 rounded-lg hover:bg-[#1e4f61]"
+            >
+              Save Schedule
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <footer>
+      <div class="copyright">quality digital PWI5</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+      // 1. Navbar Scroll Effect
+      window.addEventListener("scroll", function () {
+        const header = document.getElementById("mainHeader");
+        if (window.scrollY > 50) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      });
+
+      // 2. Initialize Calendar
+      let calendar;
+      document.addEventListener("DOMContentLoaded", function () {
+        const calendarEl = document.getElementById("calendar");
+        calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "dayGridMonth",
+          headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek",
+          },
+          events: [
+            {
+              title: "Visit: NB Boston",
+              start: "2023-10-25T10:00:00",
+              color: "#9568ff",
+            },
+            {
+              title: "Audit: Internal PWI",
+              start: "2023-10-28",
+              color: "#2b6f86",
+            },
+          ],
+          dateClick: function (info) {
+            document.getElementById("visitDate").value =
+              info.dateStr + "T08:00";
+            openModal();
+          },
+        });
+        calendar.render();
+      });
+
+      // 3. Modal Logic
+      const modal = document.getElementById("visitModal");
+      function openModal() {
+        modal.style.display = "flex";
+      }
+      function closeModal() {
+        modal.style.display = "none";
+      }
+
+      // 4. Form Submission (Dummy)
+      document
+        .getElementById("visitForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const from = document.getElementById("visitFrom").value;
+          const date = document.getElementById("visitDate").value;
+          const area = document.getElementById("visitArea").value;
+
+          calendar.addEvent({
+            title: `Visit: ${from} (${area})`,
+            start: date,
+            allDay: false,
+            color: "#9568ff",
+          });
+
+          alert("Jadwal kunjungan berhasil ditambahkan ke kalender!");
+          closeModal();
+          this.reset();
+        });
+
+      // Close modal on outside click
+      window.onclick = function (event) {
+        if (event.target == modal) closeModal();
+      };
+    </script>
+  </body>
+</html>
